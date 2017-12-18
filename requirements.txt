@@ -1,0 +1,4 @@
+tox
+webdev
+flake8
+pep8-naming
