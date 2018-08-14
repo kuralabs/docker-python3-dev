@@ -1,4 +1,4 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
 LABEL mantainer="info@kuralabs.io"
 
 # -----
@@ -23,7 +23,7 @@ RUN apt-get update \
         python3 python3-dev \
         python3-pip python3-venv python3-wheel python3-setuptools \
         build-essential \
-        graphviz git \
+        graphviz git openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
 
