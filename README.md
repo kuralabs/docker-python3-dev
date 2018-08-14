@@ -5,7 +5,7 @@ Python 3 ready container to build Python projects.
 
 https://hub.docker.com/r/kuralabs/python3-dev/
 
-Uses Ubuntu 17.10 as base and installs a full Python 3.6 stack ready for
+Uses Ubuntu 18.04 as base and installs a full Python 3.6 stack ready for
 traditional or AsyncIO development. It install, among other things:
 
 - python3
@@ -14,6 +14,7 @@ traditional or AsyncIO development. It install, among other things:
 - python3-venv
 - python3-wheel
 - python3-setuptools
+- openssh-client
 - build-essential
 - graphviz
 - flake8
