@@ -18,6 +18,7 @@ traditional or AsyncIO development. It install, among other things:
 - build-essential
 - graphviz
 - flake8
+- cryptography
 - tox
 - git
 
