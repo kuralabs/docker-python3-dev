@@ -5,6 +5,10 @@ LABEL mantainer="info@kuralabs.io"
 
 USER root
 ENV DEBIAN_FRONTEND noninteractive
+ENV USER_UID 1000
+ENV USER_GID 1000
+ENV DOCKER_GID 999
+
 
 # Setup and install base system software
 RUN echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8" | debconf-set-selections \
@@ -12,7 +16,7 @@ RUN echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8"
     && apt-get update \
     && apt-get --yes --no-install-recommends install \
         locales tzdata ca-certificates sudo \
-        bash-completion iproute2 curl nano tree \
+        bash-completion iproute2 tar curl vim nano tree \
     && rm -rf /var/lib/apt/lists/*
 ENV LANG en_US.UTF-8
 
@@ -35,14 +39,19 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt \
 
 
 # Create development user
-RUN addgroup \
+RUN echo "Creating user and group ..." \
+    && addgroup \
         --quiet \
-        --gid 1000 \
+        --gid "${USER_GID}" \
         python3 \
+    && addgroup \
+        --quiet \
+        --gid "${DOCKER_GID}" \
+        docker \
     && adduser \
         --quiet \
         --home /home/python3 \
-        --uid 1000 \
+        --uid "${USER_UID}" \
         --ingroup python3 \
         --disabled-password \
         --shell /bin/bash \
@@ -50,11 +59,16 @@ RUN addgroup \
         python3 \
     && usermod \
         --append \
-        --groups sudo \
+        --groups sudo,docker \
         python3 \
+    && echo "Allowing passwordless sudo to user ..." \
     && echo 'python3 ALL=NOPASSWD: ALL' > /etc/sudoers.d/python3
 
 
-USER python3
+# Install entrypoint
+COPY docker-entrypoint /usr/local/bin/
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
+
+
 EXPOSE 8080/TCP
 WORKDIR /home/python3

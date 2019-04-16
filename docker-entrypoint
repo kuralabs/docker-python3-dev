@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+
+
+# Check container is run as root
+if [ $(id -u) != 0 ]; then
+    echo "[Entrypoint] WARNING! Container should run as root. Currently running as user $(id -u)."
+fi
+
+
+# Adjust user UID, GID and Docker GID
+ADJUST_USER_UID="${ADJUST_USER_UID:-${USER_UID}}"
+ADJUST_USER_GID="${ADJUST_USER_GID:-${USER_GID}}"
+ADJUST_DOCKER_GID="${ADJUST_DOCKER_GID:-${DOCKER_GID}}"
+
+
+# Adjust user UID
+if [ "${ADJUST_USER_UID}" != "${USER_UID}" ]; then
+    echo "[Entrypoint] Host's user UID (${ADJUST_USER_UID}) mismatch container's user UID (${USER_UID}). Changing ..."
+
+    EXPRESSION="s/python3:x:${USER_UID}:${USER_GID}/python3:x:${ADJUST_USER_UID}:${ADJUST_USER_GID}/"
+    echo "[Entrypoint] Executing sed expression '${EXPRESSION}'"
+    sed --in-place --expression="${EXPRESSION}" /etc/passwd
+
+    chown --recursive ${ADJUST_USER_UID} /home/python3/
+else
+    echo "[Entrypoint] Host's user UID (${ADJUST_USER_UID}) matches with container's user UID (${USER_UID}). Continue ..."
+fi
+
+
+# Adjust user GID
+if [ "${ADJUST_USER_GID}" != "${USER_GID}" ]; then
+    echo "[Entrypoint] Host's user GID (${ADJUST_USER_GID}) mismatch container's user GID (${USER_GID}). Changing ..."
+
+    EXPRESSION="s/python3:x:${USER_GID}/python3:x:${ADJUST_USER_GID}/"
+    echo "[Entrypoint] Executing sed expression '${EXPRESSION}'"
+    sed --in-place --expression="${EXPRESSION}" /etc/group
+
+    chgrp --recursive ${ADJUST_USER_GID} /home/python3/
+else
+    echo "[Entrypoint] Host's user GID (${ADJUST_USER_GID}) matches with container's user GID (${USER_GID}). Continue ..."
+fi
+
+
+# Adjust Docker GID
+if [ "${ADJUST_DOCKER_GID}" != "${DOCKER_GID}" ]; then
+    echo "[Entrypoint] Host's Docker GID (${ADJUST_DOCKER_GID}) mismatch container's Docker GID (${DOCKER_GID}). Changing ..."
+
+    EXPRESSION="s/docker:x:${DOCKER_GID}/docker:x:${ADJUST_DOCKER_GID}/"
+    echo "[Entrypoint] Executing sed expression '${EXPRESSION}'"
+    sed --in-place --expression="${EXPRESSION}" /etc/group
+else
+    echo "[Entrypoint] Host's Docker GID (${ADJUST_DOCKER_GID}) matches with container's Docker GID (${DOCKER_GID}). Continue ..."
+fi
+
+
+# Run initialization scripts
+for f in /docker-entrypoint-initdb.d/*; do
+    # Check if executable
+    if [ ! -x "$f" ]; then
+        continue
+    fi
+    echo "[Entrypoint] $0: running $f"
+    sh -c "$f"
+    echo
+done
+
+
+echo "[Entrypoint] Running user command : $@"
+exec sudo --user=python3 --set-home "$@"
