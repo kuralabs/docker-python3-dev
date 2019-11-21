@@ -17,6 +17,7 @@ traditional or AsyncIO development. It install, among other things:
 - python3-setuptools
 - openssh-client
 - build-essential
+- cmake
 - graphviz
 - flake8
 - cryptography
@@ -37,7 +38,8 @@ Docker GID if required.
 
 Adjusting the user UID and user GID allows the container user to match the
 host's user and avoids permission issues in continuous integration systems that
-runs the container.
+runs the container. This is different to passing `--user` to the container,
+as the files and HOME beloging to the container user will be changed too.
 
 Adjusting the Docker GID allows the container user to access the `docker.sock`
 to build containers inside the container if the socket was mounted.
@@ -79,10 +81,10 @@ may use the following options:
     --volume /etc/localtime:/etc/localtime:ro \
 
 There is also support for the execution of startup scripts by placing
-executable scripts in the `/docker-entrypoint-initdb.d/` directory. To do so,
+executable scripts in the `/docker-entrypoint-init.d/` directory. To do so,
 mount the startup scripts directory as follows:
 
-    --volume /your/scripts/path:/docker-entrypoint-initdb.d/ \
+    --volume /your/scripts/path:/docker-entrypoint-init.d/ \
 
 
 License

@@ -57,7 +57,7 @@ fi
 
 
 # Run initialization scripts
-for f in /docker-entrypoint-initdb.d/*; do
+for f in /docker-entrypoint-init.d/*; do
     # Check if executable
     if [ ! -x "$f" ]; then
         continue
