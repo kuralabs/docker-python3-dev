@@ -6,7 +6,7 @@ Continuous Integration.
 
 https://hub.docker.com/r/kuralabs/python3-dev/
 
-Uses Ubuntu 18.04 as base and installs a full Python 3.6 stack ready for
+Uses Ubuntu 20.04 as base and installs a full Python 3.8 stack ready for
 traditional or AsyncIO development. It install, among other things:
 
 - python3
@@ -23,6 +23,7 @@ traditional or AsyncIO development. It install, among other things:
 - cryptography
 - tox
 - git
+- rsync
 
 Also creates a python3 user that allows to test as a non-root user
 (although it is a sudoer).
@@ -90,7 +91,7 @@ mount the startup scripts directory as follows:
 License
 =======
 
-    Copyright (C) 2017-2019 KuraLabs S.R.L
+    Copyright (C) 2017-2020 KuraLabs S.R.L
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

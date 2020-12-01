@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 LABEL mantainer="info@kuralabs.io"
 
 # -----
@@ -16,7 +16,7 @@ RUN echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8"
     && apt-get update \
     && apt-get --yes --no-install-recommends install \
         locales tzdata ca-certificates sudo \
-        bash-completion iproute2 tar unzip curl vim nano tree \
+        bash-completion iproute2 tar unzip curl rsync vim nano tree \
     && rm -rf /var/lib/apt/lists/*
 ENV LANG en_US.UTF-8
 
