@@ -85,5 +85,5 @@ COPY docker-entrypoint /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 
 
-EXPOSE 8080/TCP
+EXPOSE 8080/tcp
 WORKDIR /home/python3
