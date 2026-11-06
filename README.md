@@ -4,35 +4,72 @@ About
 Python 3 ready container to build Python 3 projects, with support for
 Continuous Integration.
 
-https://hub.docker.com/r/kuralabs/python3-dev/
+Images are published for `linux/amd64` and `linux/arm64` to:
 
-Uses Ubuntu 20.04 as base and installs a full Python 3.8 stack ready for
-traditional or AsyncIO development. It install, among other things:
+- GitHub Container Registry (recommended): `ghcr.io/kuralabs/python3-dev`
+- Docker Hub (mirror): `kuralabs/python3-dev`
+  https://hub.docker.com/r/kuralabs/python3-dev/
+
+Uses Ubuntu 26.04 as base and installs a full Python 3.14 stack ready for
+traditional or AsyncIO development. It installs, among other things:
 
 - python3
 - python3-dev
 - python3-pip
 - python3-venv
-- python3-wheel
 - python3-setuptools
+- uv
+- tox (with tox-uv)
+- flake8 (with pep8-naming)
+- ruff
+- webdev
 - openssh-client
 - build-essential
 - cmake
+- libssl-dev
+- libffi-dev
 - graphviz
-- flake8
-- cryptography
-- tox
 - git
 - rsync
+- ag (silversearcher-ag)
+- ping (iputils-ping)
+- dig (bind9-dnsutils)
+
+Python tools (tox, flake8, ruff and webdev) are installed with `uv tool` in
+isolated environments, so they don't interfere with the system Python.
 
 Also creates a python3 user that allows to test as a non-root user
 (although it is a sudoer).
 
+
+Tags
+====
+
+- `latest`, `26.04`: Ubuntu 26.04 with Python 3.14. Rebuilt weekly.
+- `20.04`: Ubuntu 20.04 with Python 3.8. Legacy, no longer updated.
+
+
+Installing Python packages
+==========================
+
+This container is meant to be an ephemeral development environment, akin to a
+preloaded virtual environment. Because of this, the
+[PEP 668](https://peps.python.org/pep-0668/) "externally managed environment"
+protection of the system Python is disabled for both `pip` and `uv` (see
+`/etc/pip.conf` and `/etc/uv/uv.toml`), and `PIP_BREAK_SYSTEM_PACKAGES=1` is
+set. Existing workflows keep working:
+
+    pip3 install --user -r requirements.txt
+
+Scripts installed with `--user` go to `~/.local/bin`, which is in the `PATH`.
+Virtual environments are still available with `python3 -m venv` or `uv venv`.
+
+
 Usage
 =====
 
-    docker pull kuralabs/python3-dev:latest
-    docker run --interactive --tty --init kuralabs/python3-dev:latest bash
+    docker pull ghcr.io/kuralabs/python3-dev:latest
+    docker run --interactive --tty --init ghcr.io/kuralabs/python3-dev:latest bash
 
 There is an entrypoint that can adjust container's user UID, user GID and the
 Docker GID if required.
@@ -64,7 +101,7 @@ For example:
         --env ADJUST_USER_UID=${ADJUST_USER_UID} \
         --env ADJUST_USER_GID=${ADJUST_USER_GID} \
         --env ADJUST_DOCKER_GID=${ADJUST_DOCKER_GID} \
-        kuralabs/python3-dev:latest bash
+        ghcr.io/kuralabs/python3-dev:latest bash
 
 For the adjustment to work, the user starting the container must be root, which
 is also the default. Make sure to pass `--user root:root` to the container if
@@ -88,10 +125,20 @@ mount the startup scripts directory as follows:
     --volume /your/scripts/path:/docker-entrypoint-init.d/ \
 
 
+Publishing
+==========
+
+Images are built, smoke tested (`test/smoke-test`) and published by GitHub
+Actions (`.github/workflows/build.yml`) on every push to `main`, and weekly
+to pick up security updates. Pull requests are built and tested but not
+published. Publishing to Docker Hub requires the `DOCKERHUB_USERNAME` and
+`DOCKERHUB_TOKEN` repository secrets.
+
+
 License
 =======
 
-    Copyright (C) 2017-2020 KuraLabs S.R.L
+    Copyright (C) 2017-2026 KuraLabs S.R.L
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

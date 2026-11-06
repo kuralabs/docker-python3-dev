@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Smoke test for the image. Run inside the container as the default user.
+
+set -o errexit
+set -o nounset
+set -o xtrace
+
+test "$(id -un)" = python3
+case ":${PATH}:" in *":/home/python3/.local/bin:"*) ;; *) exit 1 ;; esac
+
+python3 --version
+ag --version
+ping -c 1 127.0.0.1
+dig -v
+uv --version
+uvx --version
+tox --version
+flake8 --version
+ruff --version
+webdev --help > /dev/null
+cmake --version
+git --version
+
+python3 -m venv /tmp/venv
+/tmp/venv/bin/python -c 'import sys; assert sys.prefix != sys.base_prefix'
+uv venv --quiet /tmp/uvvenv
+
+# PEP 668 is relaxed for pip in this container
+pip3 install --user --quiet --no-cache-dir six
+python3 -c 'import six'
+
+sudo true

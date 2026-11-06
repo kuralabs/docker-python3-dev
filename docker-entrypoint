@@ -69,4 +69,6 @@ done
 
 
 echo "[Entrypoint] Running user command : $@"
-exec sudo --user=python3 --set-home "$@"
+# sudo resets PATH, so add the user's pip --user scripts directory explicitly
+exec sudo --user=python3 --set-home \
+    env PATH="/home/python3/.local/bin:${PATH}" "$@"
